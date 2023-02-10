@@ -25,8 +25,8 @@ public class main{
 
     public static void Main(){
 
-        using(WindowMain.WindowCreator window = new WindowCreator(800, 600, "First Window")){
-            window.Run(60); // double : how many fps. if null, updates at hardware limit
+        using(WindowMain.WindowCreator window = new WindowCreator(1600, 900, "First Window")){
+            window.Run(1); // double : how many fps. if null, updates at hardware limit
         }
 
 

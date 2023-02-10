@@ -47,11 +47,12 @@ namespace WindowMain
         Shader shader;
 
         private double timeval;
+        private double deltaTime;
         KeyboardState keyb;
         MouseState mous;
         CameraControl camera;
 
-        Matrix4 View, Projection;
+        //Matrix4 View, Projection;
         
 
         public WindowCreator(int width, int height, string title) : base(
@@ -69,7 +70,7 @@ namespace WindowMain
         public void Run(double fps)
         {
             base.Run();
-            base.RenderFrequency = fps;
+            if(fps > 0) base.RenderFrequency = fps;
         }
 
         protected override void OnLoad()
@@ -96,12 +97,13 @@ namespace WindowMain
             GL.VertexAttribPointer(shader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 3*sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
 
-            View = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
-            Projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), Size.X/(float)Size.Y, 0.1f, 100.0f);
-
+            //View = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
+            //Projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), Size.X/(float)Size.Y, 0.1f, 100.0f);
 
             shader.Use();
             // draw the object now
+
+
         }
 
         protected override void OnUnload()
@@ -134,25 +136,28 @@ namespace WindowMain
             if(!IsFocused) return;
 
             if(keyb.IsKeyDown(Keys.Escape)){
+                Console.WriteLine("{0}    {1}    {2}    {3}\n", camera.cameraPosition, camera.cameraFov, camera.cameraFront, camera.cameraYaw);
                 Close();
             }
+            camera.ManageInput(args);
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
+            deltaTime = args.Time;
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.BindVertexArray(vao);
             shader.Use();
 
-            timeval += 6.0f * args.Time;
-            float greenval = (float)Math.Sin(timeval/6.0f)/2.0f+0.5f;
-            int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "ourColor");
-            GL.Uniform4(vertexColorLocation, 0.0f, greenval, 0.0f, 1.0f);
+            timeval += 6.0f * deltaTime;
+            //float greenval = (float)Math.Sin(timeval/6.0f)/2.0f+0.5f;
+            //int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "ourColor");
+            //GL.Uniform4(vertexColorLocation, 0.0f, greenval, 0.0f, 1.0f);
 
             Matrix4 Model = Matrix4.Identity * Matrix4.CreateRotationX((float)MathHelper.DegreesToRadians(timeval));
-            Model *= Matrix4.Identity * Matrix4.CreateRotationY((float)MathHelper.DegreesToRadians(timeval));
+            //Model *= Matrix4.Identity * Matrix4.CreateRotationY((float)MathHelper.DegreesToRadians(timeval));
 
             shader.SetMatrix4("model", Model);
             shader.SetMatrix4("view", camera.GetViewMatrix());
@@ -173,6 +178,7 @@ namespace WindowMain
             base.OnResize(args);
 
             GL.Viewport(0, 0, args.Width, args.Height);
+            camera.AspectRatio = Size.X / (float)Size.Y;
         }
     }
 }

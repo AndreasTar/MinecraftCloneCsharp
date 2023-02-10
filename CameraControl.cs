@@ -10,11 +10,12 @@ namespace Camera
     public class CameraControl{
         
         Vector3 up = Vector3.UnitY;
-        Vector3 front = Vector3.UnitY;
+        Vector3 front = -Vector3.UnitZ;
         Vector3 right = Vector3.UnitX;
         float pitch;
         float yaw = -MathHelper.PiOver2;
-        float fov = MathHelper.PiOver2;
+        float fov = 80f;
+        //float fov = MathHelper.PiOver2;
 
         public Vector3 cameraPosition {get; set;}
         public float AspectRatio {private get; set;}
@@ -45,7 +46,6 @@ namespace Camera
                 UpdateVectors();
             }
         }
-
         public float cameraYaw
         {
             get => MathHelper.RadiansToDegrees(yaw);
@@ -55,14 +55,16 @@ namespace Camera
                 UpdateVectors();
             }
         }
-
         public float cameraFov
         {
-            get => MathHelper.RadiansToDegrees(fov);
+            
+            get => MathHelper.DegreesToRadians(fov);
             set
             {
-                var angle = MathHelper.Clamp(value, 1f, 90f);
-                fov = MathHelper.DegreesToRadians(angle);
+                //float angle = MathHelper.Clamp(value, -20f, 20f);
+                //fov = MathHelper.DegreesToRadians(angle);
+                //fov = MathHelper.Clamp(fov, MathHelper.DegreesToRadians(20f),MathHelper.DegreesToRadians(170f));
+                fov = MathHelper.Clamp(value, 40f, 170f);
             }
         }
 
@@ -71,7 +73,7 @@ namespace Camera
         }
 
         public Matrix4 GetProjectionMatrix(){
-            return Matrix4.CreatePerspectiveFieldOfView(fov, AspectRatio, 0.01f, 100f);
+            return Matrix4.CreatePerspectiveFieldOfView(cameraFov, AspectRatio, 0.01f, 1000f);
         }
 
         private void UpdateVectors(){
@@ -88,36 +90,39 @@ namespace Camera
             return cameraPosition;
         }
 
-        void ManageInput(){
+        public void ManageInput(FrameEventArgs e){
 
             speed = 1.5f;
             sensitivity = 0.2f;
+            float time = (float)e.Time;
 
-             if (keyboard.IsKeyDown(Keys.W))
+            if (keyboard.IsKeyDown(Keys.W))
             {
-                cameraPosition += cameraFront * speed; // Forward
+                cameraPosition += cameraFront * speed * time; // Forward
             }
             if (keyboard.IsKeyDown(Keys.S))
             {
-                cameraPosition -= cameraFront * speed; // Backwards
+                cameraPosition -= cameraFront * speed * time; // Backwards
             }
             if (keyboard.IsKeyDown(Keys.A))
             {
-                cameraPosition -= cameraRight * speed; // Left
+                cameraPosition -= cameraRight * speed * time; // Left
             }
             if (keyboard.IsKeyDown(Keys.D))
             {
-                cameraPosition += cameraRight * speed; // Right
+                cameraPosition += cameraRight * speed * time; // Right
             }
             if (keyboard.IsKeyDown(Keys.Space))
             {
-                cameraPosition += cameraUp * speed; // Up
+                cameraPosition += cameraUp * speed * time; // Up
             }
             if (keyboard.IsKeyDown(Keys.LeftShift))
             {
-                cameraPosition -= cameraUp * speed; // Down
+                cameraPosition -= cameraUp * speed * time; // Down
             }
-
+            if (keyboard.IsKeyDown(Keys.B)){
+                Console.WriteLine("{0}    {1}    {2}    {3}\n", cameraPosition, cameraFov, cameraFront, cameraYaw);
+            }
 
             if(firstMove){
                 lastMousePos = new Vector2(mouse.X, mouse.Y);
@@ -127,13 +132,16 @@ namespace Camera
                 float deltaX = mouse.X - lastMousePos.X;
                 float deltaY = mouse.Y - lastMousePos.Y;
                 lastMousePos = new Vector2(mouse.X, mouse.Y);
-                yaw += deltaX * sensitivity;
-                pitch -= deltaY * sensitivity;
+                yaw += deltaX * sensitivity * time;
+                pitch -= deltaY * sensitivity * time;
             }
+            UpdateVectors();
         }
 
         public void OnMouseWheel(MouseWheelEventArgs e){
-            cameraFov -= e.OffsetY;
+            cameraFov = MathHelper.RadiansToDegrees(cameraFov) - e.OffsetY * 2;
+            //Console.WriteLine($"{e.Offset}");
+            //cameraFov -= e.OffsetX;
         }
     }
 }
