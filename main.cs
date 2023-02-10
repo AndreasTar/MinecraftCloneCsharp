@@ -10,17 +10,25 @@ very useful : https://opentk.net/learn/index.html
 aka how i learned to use this whole thing
 */
 
+// small reminder for comment highlights :
+// * important
+// ! deprecated
+// ? question
+// TODO uhm... todo
+//// this is strikethrough
+
 using WindowMain;
 
 public class main{
     
-    
+
 
     public static void Main(){
 
         using(WindowMain.WindowCreator window = new WindowCreator(800, 600, "First Window")){
             window.Run(60); // double : how many fps. if null, updates at hardware limit
         }
+
 
     }
 }
