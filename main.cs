@@ -21,14 +21,12 @@ using WindowMain;
 
 public class main{
     
-
-
     public static void Main(){
 
         using(WindowMain.WindowCreator window = new WindowCreator(1600, 900, "First Window")){
-            window.Run(1); // double : how many fps. if null, updates at hardware limit
+            // double FPS , int TPS
+            // if either is zero, renders|updates at hardware limit respectively
+            window.Run(40, 40);
         }
-
-
     }
 }

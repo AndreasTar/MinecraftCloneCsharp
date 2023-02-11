@@ -67,10 +67,12 @@ namespace WindowMain
             CursorState = CursorState.Grabbed;
         }
 
-        public void Run(double fps)
+        public void Run(double fps, int tps)
         {
-            base.Run();
+            base.VSync = VSyncMode.Off;
             if(fps > 0) base.RenderFrequency = fps;
+            if(tps > 0) base.UpdateFrequency = tps;
+            base.Run();
         }
 
         protected override void OnLoad()
@@ -130,6 +132,13 @@ namespace WindowMain
             shader.Dispose();
         }
 
+        /*
+            This is basically the Updating part of the whole system.
+            It is called once everytime the programm needs to be updated, and only manages FPS.
+            Its one part of the decoupling between FPS and TPS in games, this being the TPS.
+            Look to OnRenderFrame for the FPS.
+            All actions regarding updating the game (like controls, AI etc) should be inserted here.
+        */
         protected override void OnUpdateFrame(FrameEventArgs args){
             base.OnUpdateFrame(args);
 
@@ -142,7 +151,14 @@ namespace WindowMain
             camera.ManageInput(args);
         }
 
-        protected override void OnRenderFrame(FrameEventArgs args)
+        /*
+            This is basically the Rendering part of the whole system.
+            It is called once everytime the image can be rendered, and only manages FPS.
+            Its one part of the decoupling between FPS and TPS in games, this being the FPS.
+            Look to OnUpdateFrame for the TPS.
+            All actions regarding rendering the game (like shaders, effects etc) should be inserted here.
+        */
+        protected override void OnRenderFrame(FrameEventArgs args) 
         {
             base.OnRenderFrame(args);
             deltaTime = args.Time;

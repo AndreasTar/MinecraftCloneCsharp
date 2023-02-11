@@ -12,8 +12,8 @@ namespace Camera
         Vector3 up = Vector3.UnitY;
         Vector3 front = -Vector3.UnitZ;
         Vector3 right = Vector3.UnitX;
-        float pitch;
-        float yaw = -MathHelper.PiOver2;
+        float pitch = 0f;
+        float yaw = 260f;
         float fov = 80f;
         //float fov = MathHelper.PiOver2;
 
@@ -141,8 +141,6 @@ namespace Camera
 
         public void OnMouseWheel(MouseWheelEventArgs e){
             cameraFov -= e.OffsetY * 2;
-            //Console.WriteLine($"{e.Offset}");
-            //cameraFov -= e.OffsetX;
         }
     }
 }
