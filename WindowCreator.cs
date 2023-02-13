@@ -52,12 +52,15 @@ namespace WindowMain
         MouseState mous;
         CameraControl camera;
 
+        int vPos, vCol, model, view, projection;
+        List<Volume> objects = new List<Volume>();
+
         //Matrix4 View, Projection;
         
 
         public WindowCreator(int width, int height, string title) : base(
             GameWindowSettings.Default, new NativeWindowSettings() {
-                Size = (width,height), Title = title 
+                Size = (width,height), Title = title , NumberOfSamples = 4
             }
         ) {
             shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
@@ -69,7 +72,7 @@ namespace WindowMain
 
         public void Run(double fps, int tps)
         {
-            base.VSync = VSyncMode.Off;
+            //base.VSync = VSyncMode.Adaptive;
             if(fps > 0) base.RenderFrequency = fps;
             if(tps > 0) base.UpdateFrequency = tps;
             base.Run();
@@ -79,8 +82,21 @@ namespace WindowMain
         {
             base.OnLoad();
 
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            vPos = shader.GetAttribLocation("vPosition");
+            vCol = shader.GetAttribLocation("vColor");
+            model = shader.GetUniformLocation("model");
+            view = shader.GetUniformLocation("view");
+            projection = shader.GetUniformLocation("projection");
+
+
+
+            GL.ClearColor(Color4.CornflowerBlue);
+            //GL.ClearDepth(0.0f);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Front);
+            GL.PointSize(5f);
 
             vao = GL.GenVertexArray();
             GL.BindVertexArray(vao);
@@ -96,7 +112,7 @@ namespace WindowMain
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length*sizeof(uint), indices, BufferUsageHint.StaticDraw);
 
-            GL.VertexAttribPointer(shader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 3*sizeof(float), 0);
+            GL.VertexAttribPointer(vPos, 3, VertexAttribPointerType.Float, false, 3*sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
 
             //View = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
@@ -105,7 +121,7 @@ namespace WindowMain
             shader.Use();
             // draw the object now
 
-
+            objects.Add(new Block());
         }
 
         protected override void OnUnload()
@@ -142,6 +158,7 @@ namespace WindowMain
         protected override void OnUpdateFrame(FrameEventArgs args){
             base.OnUpdateFrame(args);
 
+
             if(!IsFocused) return;
 
             if(keyb.IsKeyDown(Keys.Escape)){
@@ -168,18 +185,25 @@ namespace WindowMain
             shader.Use();
 
             timeval += 6.0f * deltaTime;
-            //float greenval = (float)Math.Sin(timeval/6.0f)/2.0f+0.5f;
             //int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "ourColor");
             //GL.Uniform4(vertexColorLocation, 0.0f, greenval, 0.0f, 1.0f);
 
             Matrix4 Model = Matrix4.Identity * Matrix4.CreateRotationX((float)MathHelper.DegreesToRadians(timeval));
-            //Model *= Matrix4.Identity * Matrix4.CreateRotationY((float)MathHelper.DegreesToRadians(timeval));
 
             shader.SetMatrix4("model", Model);
             shader.SetMatrix4("view", camera.GetViewMatrix());
             shader.SetMatrix4("projection", camera.GetProjectionMatrix());
 
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+
+            int indexat = 0;
+            foreach (Volume v in objects)
+            {
+                GL.UniformMatrix4(model, false, ref v.ModelViewProjectionMatrix);
+                GL.DrawElements(PrimitiveType.Triangles, v.IndexCount, DrawElementsType.UnsignedInt, indexat * sizeof(uint));
+                indexat += v.IndexCount;
+            }
+
             SwapBuffers();
         }
 

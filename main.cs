@@ -8,6 +8,8 @@ so i discarded that idea.
 
 very useful : https://opentk.net/learn/index.html
 aka how i learned to use this whole thing
+also some slight help from : http://neokabuto.blogspot.com/p/tutorials.html
+for some small stuff that the official tutorial doesnt cover
 */
 
 // small reminder for comment highlights :
@@ -26,7 +28,7 @@ public class main{
         using(WindowMain.WindowCreator window = new WindowCreator(1600, 900, "First Window")){
             // double FPS , int TPS
             // if either is zero, renders|updates at hardware limit respectively
-            window.Run(40, 40);
+            window.Run(60, 200);
         }
     }
 }

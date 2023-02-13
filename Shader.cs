@@ -80,6 +80,10 @@ public class Shader
         return GL.GetAttribLocation(Handle, attribName);
     }
 
+    public int GetUniformLocation(string unifromName){
+        return GL.GetUniformLocation(Handle, unifromName);
+    }
+
     // Destructor, used by garbage collector
     ~Shader(){
         GL.DeleteProgram(Handle);

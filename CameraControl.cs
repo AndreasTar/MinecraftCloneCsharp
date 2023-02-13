@@ -87,10 +87,6 @@ namespace Camera
             up = Vector3.Normalize(Vector3.Cross(right, front));
         }
 
-        public Vector3 getInput(){
-            return cameraPosition;
-        }
-
         public void ManageInput(FrameEventArgs e){
 
             speed = 1.5f;
@@ -122,7 +118,7 @@ namespace Camera
                 cameraPosition -= cameraUp * speed * time; // Down
             }
             if (keyboard.IsKeyDown(Keys.B)){
-                Console.WriteLine("{0}    {1}    {2}    {3}    {4}\n", cameraPosition, cameraFov, cameraFront, cameraYaw, cameraPitch);
+                Console.WriteLine("{0}    {1}    {2}    {3}    {4}    {5}\n", cameraPosition, cameraFov, cameraFront, cameraYaw, cameraPitch, lastMousePos);
             }
 
             if(firstMove){
