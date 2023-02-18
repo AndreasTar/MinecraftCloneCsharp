@@ -31,18 +31,18 @@ public class Block : Volume{
     public override int[] GetIndices(int offset = 0)
     {
         int[] inds = new int[]{
-                0, 6, 2, // left face
-                0, 4, 6,
-                0, 5, 4, // back face
-                0, 1, 5,
-                5, 3, 7, // right face
-                1, 3, 5,
-                2, 6, 3, // front face
-                3, 6, 7,
-                4, 5, 6, // top face
-                5, 7, 6,
-                0, 3, 1, // bottom face
-                0, 2, 3
+                0, 2, 6, // left face
+                0, 6, 4,
+                0, 4, 5, // back face
+                0, 5, 1,
+                5, 7, 3, // right face
+                1, 5, 3,
+                2, 3, 6, // front face
+                3, 7, 6,
+                4, 6, 5, // top face
+                5, 6, 7,
+                0, 1, 3, // bottom face
+                0, 3, 2
         };
 
         if (offset !=0){
@@ -57,7 +57,7 @@ public class Block : Volume{
 
     public override Vector3[] GetVerts()
     {
-        return new Vector3[] {
+        return new Vector3[] { // looking at north, back bot left is 000 front top right is 111
             // bot
             new Vector3(0f,0f,0f), // back left
             new Vector3(1f,0f,0f), // back right

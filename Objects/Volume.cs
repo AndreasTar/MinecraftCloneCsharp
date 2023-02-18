@@ -12,8 +12,8 @@ public abstract class Volume
         public int IndexCount;
         public int ColorDataCount;
         public Matrix4 ModelMatrix = Matrix4.Identity;
-        public Matrix4 ViewProjectionMatrix = Matrix4.Identity;
-        public Matrix4 ModelViewProjectionMatrix = Matrix4.Identity;
+        //public Matrix4 ViewProjectionMatrix = Matrix4.Identity;
+        //public Matrix4 ModelViewProjectionMatrix = Matrix4.Identity;
  
         public abstract Vector3[] GetVerts();
         public abstract int[] GetIndices(int offset = 0);

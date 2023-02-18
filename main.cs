@@ -19,16 +19,16 @@ for some small stuff that the official tutorial doesnt cover
 // TODO uhm... todo
 //// this is strikethrough
 
-using WindowMain;
+using GameMain;
 
 public class main{
     
     public static void Main(){
 
-        using(WindowMain.WindowCreator window = new WindowCreator(1600, 900, "First Window")){
+        using(GameMain.Game game = new Game(1600, 900, "First Window")){
             // double FPS , int TPS
             // if either is zero, renders|updates at hardware limit respectively
-            window.Run(60, 200);
+            game.Run(60, 200);
         }
     }
 }

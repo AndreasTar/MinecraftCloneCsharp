@@ -7,58 +7,59 @@ using System;
 using System.Diagnostics;
 using Camera;
 
-namespace WindowMain
+namespace GameMain
 {
-    public class WindowCreator : GameWindow
+    public class Game : GameWindow
     {
-        float[] verts = {
-            // front
-            -0.5f, -0.5f, 0.5f, // bottom left
-            0.5f, -0.5f, 0.5f,  // bottom right
-            -0.5f, 0.5f, 0.5f,  // top left
-            0.5f, 0.5f, 0.5f,   // top right
-            // back
-            -0.5f, -0.5f, -0.5f,// bot left
-            0.5f, -0.5f, -0.5f, // bot right
-            -0.5f, 0.5f, -0.5f, // top left
-            0.5f, 0.5f, -0.5f,  // top right
+        // float[] verts = {
+        //     // front
+        //     -0.5f, -0.5f, 0.5f, // bottom left
+        //     0.5f, -0.5f, 0.5f,  // bottom right
+        //     -0.5f, 0.5f, 0.5f,  // top left
+        //     0.5f, 0.5f, 0.5f,   // top right
+        //     // back
+        //     -0.5f, -0.5f, -0.5f,// bot left
+        //     0.5f, -0.5f, -0.5f, // bot right
+        //     -0.5f, 0.5f, -0.5f, // top left
+        //     0.5f, 0.5f, -0.5f,  // top right
 
-        };
+        // };
 
-        uint[] indices = {
-            0, 3, 1, // front
-            0, 2, 3,
-            5, 7, 6, // back
-            5, 6, 4,
-            0, 4, 6, // left side
-            0, 6, 2,
-            1, 3, 5, // right side
-            5, 3, 7,
-            0, 1, 5, // bottom
-            5, 4, 0,
-            3, 2, 6, // top
-            3, 6, 7
+        // uint[] indices = {
+        //     0, 3, 1, // front
+        //     0, 2, 3,
+        //     5, 7, 6, // back
+        //     5, 6, 4,
+        //     0, 4, 6, // left side
+        //     0, 6, 2,
+        //     1, 3, 5, // right side
+        //     5, 3, 7,
+        //     0, 1, 5, // bottom
+        //     5, 4, 0,
+        //     3, 2, 6, // top
+        //     3, 6, 7
 
-        };
+        // };
 
-        int vbo;
-        int ebo;
-        int vao;
+        int vboPos, vboCol, vboMview, ebo;
+        int attribVPos, attribVCol, attribModel, attribView, attribProjection;
+        Vector3[] vertData, colorData;
+        int[] indexData;
+
         Shader shader;
-
-        private double timeval;
-        private double deltaTime;
         KeyboardState keyb;
         MouseState mous;
         CameraControl camera;
 
-        int vPos, vCol, model, view, projection;
+        private double deltaTime;
+        private double timeVal;
+
         List<Volume> objects = new List<Volume>();
 
         //Matrix4 View, Projection;
         
 
-        public WindowCreator(int width, int height, string title) : base(
+        public Game(int width, int height, string title) : base(
             GameWindowSettings.Default, new NativeWindowSettings() {
                 Size = (width,height), Title = title , NumberOfSamples = 4
             }
@@ -78,50 +79,37 @@ namespace WindowMain
             base.Run();
         }
 
+        void initProgram(){
+            objects.Add(new Block());
+            
+            attribVPos = shader.GetAttribLocation("vPosition");
+            attribVCol = shader.GetAttribLocation("vColor");
+            attribModel = shader.GetUniformLocation("model");
+            attribView = shader.GetUniformLocation("view");
+            attribProjection = shader.GetUniformLocation("projection");
+
+            vboPos = GL.GenBuffer();
+            vboCol = GL.GenBuffer();
+            vboMview = GL.GenBuffer();
+            ebo = GL.GenBuffer();
+        }
+
         protected override void OnLoad()
         {
             base.OnLoad();
 
-            vPos = shader.GetAttribLocation("vPosition");
-            vCol = shader.GetAttribLocation("vColor");
-            model = shader.GetUniformLocation("model");
-            view = shader.GetUniformLocation("view");
-            projection = shader.GetUniformLocation("projection");
-
-
+            initProgram();
 
             GL.ClearColor(Color4.CornflowerBlue);
             //GL.ClearDepth(0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Front);
+            //GL.Enable(EnableCap.CullFace);
+           // GL.CullFace(CullFaceMode.Back);
             GL.PointSize(5f);
 
-            vao = GL.GenVertexArray();
-            GL.BindVertexArray(vao);
-
-            vbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, verts.Length*sizeof(float), verts, BufferUsageHint.StaticDraw);
-            // StaticDraw : data will most likely never change or change very rarely
-            // DynamicDraw: data will change frequently
-            // StreamDraw : data will change every time its drawn
-
-            ebo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length*sizeof(uint), indices, BufferUsageHint.StaticDraw);
-
-            GL.VertexAttribPointer(vPos, 3, VertexAttribPointerType.Float, false, 3*sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
-
-            //View = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
-            //Projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), Size.X/(float)Size.Y, 0.1f, 100.0f);
-
             shader.Use();
-            // draw the object now
-
-            objects.Add(new Block());
+            // draw the object now;
         }
 
         protected override void OnUnload()
@@ -139,8 +127,10 @@ namespace WindowMain
             GL.UseProgram(0);
 
             // Delete all the resources.
-            GL.DeleteBuffer(vbo);
-            GL.DeleteVertexArray(vao);
+            GL.DeleteBuffer(vboPos);
+            GL.DeleteBuffer(vboCol);
+            GL.DeleteBuffer(vboMview);
+            //GL.DeleteVertexArray(vao);
             GL.DeleteBuffer(ebo);
 
             base.OnUnload();
@@ -150,14 +140,13 @@ namespace WindowMain
 
         /*
             This is basically the Updating part of the whole system.
-            It is called once everytime the programm needs to be updated, and only manages FPS.
+            It is called once everytime the programm needs to be updated, and only manages TPS.
             Its one part of the decoupling between FPS and TPS in games, this being the TPS.
             Look to OnRenderFrame for the FPS.
             All actions regarding updating the game (like controls, AI etc) should be inserted here.
         */
         protected override void OnUpdateFrame(FrameEventArgs args){
             base.OnUpdateFrame(args);
-
 
             if(!IsFocused) return;
 
@@ -181,29 +170,75 @@ namespace WindowMain
             deltaTime = args.Time;
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            GL.BindVertexArray(vao);
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> inds = new List<int>();
+            List<Vector3> colors = new List<Vector3>();
+
+            int vertcount = 0;
+            foreach (Volume v in objects)
+            {
+                vertices.AddRange(v.GetVerts().ToList());
+                inds.AddRange(v.GetIndices(vertcount).ToList());
+                colors.AddRange(v.GetColorData().ToList());
+                vertcount += v.VertCount;
+            }
+
+            vertData = vertices.ToArray();
+            indexData = inds.ToArray();
+            colorData = colors.ToArray();
+
+            // StaticDraw : data will most likely never change or change very rarely
+            // DynamicDraw: data will change frequently
+            // StreamDraw : data will change every time its drawn
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboPos);
+            GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, (IntPtr)(vertData.Length * Vector3.SizeInBytes), vertData, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(attribVPos, 3, VertexAttribPointerType.Float, false, 0, 0);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboCol);
+            GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, (IntPtr)(colorData.Length * Vector3.SizeInBytes), colorData, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(attribVCol, 3, VertexAttribPointerType.Float, false, 0, 0);
+
+            timeVal += 6.0f * deltaTime;
+            objects[0].Rotation = new Vector3(0.55f * (float)timeVal, 0.25f * (float)timeVal,0);
+
+            foreach (Volume v in objects)
+            {
+                v.CalculateModelMatrix();
+
+            }
+
             shader.Use();
+  
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(indexData.Length * sizeof(int)), indexData, BufferUsageHint.StaticDraw);
 
-            timeval += 6.0f * deltaTime;
-            //int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "ourColor");
-            //GL.Uniform4(vertexColorLocation, 0.0f, greenval, 0.0f, 1.0f);
 
-            Matrix4 Model = Matrix4.Identity * Matrix4.CreateRotationX((float)MathHelper.DegreesToRadians(timeval));
+            GL.EnableVertexAttribArray(attribVPos);
+            GL.EnableVertexAttribArray(attribVCol);
 
-            shader.SetMatrix4("model", Model);
-            shader.SetMatrix4("view", camera.GetViewMatrix());
-            shader.SetMatrix4("projection", camera.GetProjectionMatrix());
-
-            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+            //GL.BindVertexArray(vao);
 
             int indexat = 0;
             foreach (Volume v in objects)
             {
-                GL.UniformMatrix4(model, false, ref v.ModelViewProjectionMatrix);
+                shader.SetMatrix4("model", v.ModelMatrix);
                 GL.DrawElements(PrimitiveType.Triangles, v.IndexCount, DrawElementsType.UnsignedInt, indexat * sizeof(uint));
                 indexat += v.IndexCount;
             }
 
+            GL.DisableVertexAttribArray(attribVPos);
+            GL.DisableVertexAttribArray(attribVCol);
+
+            //int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "ourColor");
+            //GL.Uniform4(vertexColorLocation, 0.0f, greenval, 0.0f, 1.0f);
+
+            // Matrix4 Model = Matrix4.Identity * Matrix4.CreateRotationX((float)MathHelper.DegreesToRadians(timeVal));
+
+            // shader.SetMatrix4("model", Model);
+            shader.SetMatrix4("view", camera.GetViewMatrix());
+            shader.SetMatrix4("projection", camera.GetProjectionMatrix());
+
+            GL.Flush();
             SwapBuffers();
         }
 
