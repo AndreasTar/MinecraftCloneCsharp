@@ -41,10 +41,23 @@ namespace GameMain
 
         // };
 
+        /// <summary>
+        /// A buffer that contain the data that the GPU will read.
+        /// </summary>
         int vboPos, vboCol, vboMview, ebo;
-        int attribVPos, attribVCol, attribModel, attribView, attribProjection;
-        Vector3[] vertData, colorData;
-        int[] indexData;
+        int vao;
+        /// <summary>
+        /// The location of the attribute inside the Vertex Shader
+        /// </summary>
+        int attribVPos, attribVCol;
+        /// <summary>
+        /// Contain all the data that will be sent to the GPU at once
+        /// </summary>
+        Vector3[]? vertData, colorData; 
+        /// <summary>
+        /// Contain all the data that will be sent to the GPU at once
+        /// </summary>
+        int[]? indexData; 
 
         Shader shader;
         KeyboardState keyb;
@@ -52,11 +65,12 @@ namespace GameMain
         CameraControl camera;
 
         private double deltaTime;
-        private double timeVal;
+        private double timeVal = 0.0d;
 
-        List<Volume> objects = new List<Volume>();
-
-        //Matrix4 View, Projection;
+        /// <summary>
+        /// List of all the objects that are included in the scene
+        /// </summary>
+        List<Volume> sceneObjects = new List<Volume>();
         
 
         public Game(int width, int height, string title) : base(
@@ -73,20 +87,21 @@ namespace GameMain
 
         public void Run(double fps, int tps)
         {
-            //base.VSync = VSyncMode.Adaptive;
+            base.VSync = VSyncMode.Adaptive;
             if(fps > 0) base.RenderFrequency = fps;
             if(tps > 0) base.UpdateFrequency = tps;
             base.Run();
         }
 
         void initProgram(){
-            objects.Add(new Block());
+            sceneObjects.Add(new Block());
+            sceneObjects.Add(new Block(1,1,1));
             
             attribVPos = shader.GetAttribLocation("vPosition");
             attribVCol = shader.GetAttribLocation("vColor");
-            attribModel = shader.GetUniformLocation("model");
-            attribView = shader.GetUniformLocation("view");
-            attribProjection = shader.GetUniformLocation("projection");
+
+            vao = GL.GenVertexArray();
+            GL.BindVertexArray(vao);
 
             vboPos = GL.GenBuffer();
             vboCol = GL.GenBuffer();
@@ -101,11 +116,10 @@ namespace GameMain
             initProgram();
 
             GL.ClearColor(Color4.CornflowerBlue);
-            //GL.ClearDepth(0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
-            //GL.Enable(EnableCap.CullFace);
-           // GL.CullFace(CullFaceMode.Back);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
             GL.PointSize(5f);
 
             shader.Use();
@@ -151,7 +165,7 @@ namespace GameMain
             if(!IsFocused) return;
 
             if(keyb.IsKeyDown(Keys.Escape)){
-                Console.WriteLine("{0}    {1}    {2}    {3}\n", camera.cameraPosition, camera.cameraFov, camera.cameraFront, camera.cameraYaw);
+                Console.WriteLine("{0}    {1}    {2}    {3}    {4}\n", camera.cameraPosition, camera.cameraFov, camera.cameraFront, camera.cameraYaw, sceneObjects[0].Position);
                 Close();
             }
             camera.ManageInput(args);
@@ -175,7 +189,7 @@ namespace GameMain
             List<Vector3> colors = new List<Vector3>();
 
             int vertcount = 0;
-            foreach (Volume v in objects)
+            foreach (Volume v in sceneObjects)
             {
                 vertices.AddRange(v.GetVerts().ToList());
                 inds.AddRange(v.GetIndices(vertcount).ToList());
@@ -199,12 +213,11 @@ namespace GameMain
             GL.VertexAttribPointer(attribVCol, 3, VertexAttribPointerType.Float, false, 0, 0);
 
             timeVal += 6.0f * deltaTime;
-            objects[0].Rotation = new Vector3(0.55f * (float)timeVal, 0.25f * (float)timeVal,0);
+            //sceneObjects[0].Rotation = new Vector3(0.55f * (float)timeVal, 0.25f * (float)timeVal,0);
 
-            foreach (Volume v in objects)
+            foreach (Volume v in sceneObjects)
             {
                 v.CalculateModelMatrix();
-
             }
 
             shader.Use();
@@ -219,7 +232,7 @@ namespace GameMain
             //GL.BindVertexArray(vao);
 
             int indexat = 0;
-            foreach (Volume v in objects)
+            foreach (Volume v in sceneObjects)
             {
                 shader.SetMatrix4("model", v.ModelMatrix);
                 GL.DrawElements(PrimitiveType.Triangles, v.IndexCount, DrawElementsType.UnsignedInt, indexat * sizeof(uint));

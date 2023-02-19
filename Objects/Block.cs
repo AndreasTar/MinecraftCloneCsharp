@@ -7,6 +7,20 @@ public class Block : Volume{
         ColorDataCount = 8;
     }
 
+    public Block(Vector3 pos){
+        VertCount = 8;
+        IndexCount = 36;
+        ColorDataCount = 8;
+        this.Position = pos;
+    }
+
+    public Block(int x, int y, int z){
+        VertCount = 8;
+        IndexCount = 36;
+        ColorDataCount = 8;
+        this.Position = new Vector3(x,y,z);
+    }
+
     public override void CalculateModelMatrix()
     {
         ModelMatrix = Matrix4.CreateScale(Scale) * Matrix4.CreateRotationX(Rotation.X) *

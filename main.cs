@@ -28,7 +28,7 @@ public class main{
         using(GameMain.Game game = new Game(1600, 900, "First Window")){
             // double FPS , int TPS
             // if either is zero, renders|updates at hardware limit respectively
-            game.Run(60, 200);
+            game.Run(90, 500);
         }
     }
 }

@@ -13,9 +13,8 @@ namespace Camera
         Vector3 front = -Vector3.UnitZ;
         Vector3 right = Vector3.UnitX;
         float pitch = 0f;
-        float yaw = 260f;
+        float yaw = 270f;
         float fov = 80f;
-        //float fov = MathHelper.PiOver2;
 
         public Vector3 cameraPosition {get; set;}
         public float AspectRatio {private get; set;}
@@ -89,39 +88,49 @@ namespace Camera
 
         public void ManageInput(FrameEventArgs e){
 
-            speed = 1.5f;
-            sensitivity = 0.2f;
-            float time = (float)e.Time;
+            speed = 8.0f;
+            sensitivity = .2f;
+            float deltaTime = (float)e.Time;
+
+            //Vector3 direction = Vector3.Zero;
+            //Vector3 movement = Vector3.Zero;
 
             if (keyboard.IsKeyDown(Keys.W))
             {
-                cameraPosition += cameraFront * speed * time; // Forward
+                cameraPosition += cameraFront * speed * deltaTime; // Forward
             }
             if (keyboard.IsKeyDown(Keys.S))
             {
-                cameraPosition -= cameraFront * speed * time; // Backwards
+                cameraPosition -= cameraFront * speed * deltaTime; // Backwards
             }
             if (keyboard.IsKeyDown(Keys.A))
             {
-                cameraPosition -= cameraRight * speed * time; // Left
+                cameraPosition -= cameraRight * speed * deltaTime; // Left
             }
             if (keyboard.IsKeyDown(Keys.D))
             {
-                cameraPosition += cameraRight * speed * time; // Right
+                cameraPosition += cameraRight * speed * deltaTime; // Right
             }
             if (keyboard.IsKeyDown(Keys.Space))
             {
-                cameraPosition += cameraUp * speed * time; // Up
+                cameraPosition += cameraUp * speed * deltaTime; // Up
             }
             if (keyboard.IsKeyDown(Keys.LeftShift))
             {
-                cameraPosition -= cameraUp * speed * time; // Down
+                cameraPosition -= cameraUp * speed * deltaTime; // Down
             }
+
+            // direction.Normalize();
+            // if (!(Double.IsNaN(direction.X) && Double.IsNaN(direction.Y) && Double.IsNaN(direction.Z))){
+            //     float tempspeed = speed / deltaTime;
+            //     movement = tempspeed * direction;
+            // }
+
             if (keyboard.IsKeyDown(Keys.B)){
                 Console.WriteLine("{0}    {1}    {2}    {3}    {4}    {5}\n", cameraPosition, cameraFov, cameraFront, cameraYaw, cameraPitch, lastMousePos);
             }
 
-            if(firstMove){
+            if (firstMove){
                 lastMousePos = new Vector2(mouse.X, mouse.Y);
                 firstMove = false;
             }
