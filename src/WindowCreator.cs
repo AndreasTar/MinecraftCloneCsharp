@@ -81,7 +81,7 @@ namespace GameMain
             shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
             keyb = KeyboardState;
             mous = MouseState;
-            camera = new CameraControl(Vector3.UnitZ * 3, Size.X / (float) Size.Y, keyb, mous);
+            camera = new CameraControl(new Vector3(10, 5, 10), Size.X / (float) Size.Y, keyb, mous);
             CursorState = CursorState.Grabbed;
         }
 
@@ -94,8 +94,14 @@ namespace GameMain
         }
 
         void initProgram(){
-            sceneObjects.Add(new Block());
-            sceneObjects.Add(new Block(1,1,1));
+            //sceneObjects.Add(new Block());
+            //sceneObjects.Add(new Block(1,1,1));
+            Chunk ch = new Chunk();
+            Dictionary<Vector3, Volume>.Enumerator en = ch.GetAll();
+            while(en.MoveNext()){
+                sceneObjects.Add(en.Current.Value);
+            }
+            en.Dispose();
             
             attribVPos = shader.GetAttribLocation("vPosition");
             attribVCol = shader.GetAttribLocation("vColor");
