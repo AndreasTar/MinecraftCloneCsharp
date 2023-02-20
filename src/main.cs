@@ -10,6 +10,8 @@ very useful : https://opentk.net/learn/index.html
 aka how i learned to use this whole thing
 also some slight help from : http://neokabuto.blogspot.com/p/tutorials.html
 for some small stuff that the official tutorial doesnt cover
+also : https://github.com/jdah/minecraft-again
+good for getting an idea for the general structure of the source code
 */
 
 // small reminder for comment highlights :
