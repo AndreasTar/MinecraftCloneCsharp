@@ -7,6 +7,9 @@ using System;
 using System.Diagnostics;
 using Camera;
 
+using Primitives.Voxels;
+using Level;
+
 namespace GameMain
 {
     public class Game : GameWindow
@@ -70,12 +73,15 @@ namespace GameMain
         /// <summary>
         /// List of all the objects that are included in the scene
         /// </summary>
-        List<Volume> sceneObjects = new List<Volume>();
+        List<Block> sceneObjects = new List<Block>();
         
 
-        public Game(int width, int height, string title) : base(
+        public Game(int width, int height, string title, double fps, double ups) : base(
             GameWindowSettings.Default, new NativeWindowSettings() {
-                Size = (width,height), Title = title , NumberOfSamples = 4
+                Size = (width,height), 
+                Title = title, 
+                NumberOfSamples = 4, 
+                WindowState = WindowState.Normal
             }
         ) {
             shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
@@ -85,11 +91,9 @@ namespace GameMain
             CursorState = CursorState.Grabbed;
         }
 
-        public void Run(double fps, int tps)
+        public override void Run()
         {
             base.VSync = VSyncMode.Adaptive;
-            if(fps > 0) base.RenderFrequency = fps;
-            if(tps > 0) base.UpdateFrequency = tps;
             base.Run();
         }
 
@@ -97,7 +101,7 @@ namespace GameMain
             //sceneObjects.Add(new Block());
             //sceneObjects.Add(new Block(1,1,1));
             Chunk ch = new Chunk();
-            Dictionary<Vector3, Volume>.Enumerator en = ch.GetAll();
+            Dictionary<Vector3, Block>.Enumerator en = ch.GetAll();
             while(en.MoveNext()){
                 sceneObjects.Add(en.Current.Value);
             }
@@ -195,7 +199,7 @@ namespace GameMain
             List<Vector3> colors = new List<Vector3>();
 
             int vertcount = 0;
-            foreach (Volume v in sceneObjects)
+            foreach (Block v in sceneObjects)
             {
                 vertices.AddRange(v.GetVerts().ToList());
                 inds.AddRange(v.GetIndices(vertcount).ToList());
@@ -221,7 +225,7 @@ namespace GameMain
             timeVal += 6.0f * deltaTime;
             //sceneObjects[0].Rotation = new Vector3(0.55f * (float)timeVal, 0.25f * (float)timeVal,0);
 
-            foreach (Volume v in sceneObjects)
+            foreach (Block v in sceneObjects)
             {
                 v.CalculateModelMatrix();
             }
@@ -238,7 +242,7 @@ namespace GameMain
             //GL.BindVertexArray(vao);
 
             int indexat = 0;
-            foreach (Volume v in sceneObjects)
+            foreach (Block v in sceneObjects)
             {
                 shader.SetMatrix4("model", v.ModelMatrix);
                 GL.DrawElements(PrimitiveType.Triangles, v.IndexCount, DrawElementsType.UnsignedInt, indexat * sizeof(uint));

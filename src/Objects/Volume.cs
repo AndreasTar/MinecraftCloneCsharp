@@ -1,6 +1,6 @@
 using OpenTK.Mathematics;
 
-
+namespace Primitives;
 public abstract class Volume
  
     {   

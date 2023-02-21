@@ -27,10 +27,11 @@ public class main{
     
     public static void Main(){
 
-        using(GameMain.Game game = new Game(1600, 900, "First Window")){
+        using(GameMain.Game game = new Game(1600, 900, "First Window", 90, 500)){
             // double FPS , int TPS
             // if either is zero, renders|updates at hardware limit respectively
-            game.Run(90, 500);
+            game.Run();
+            
         }
     }
 }
