@@ -3,10 +3,21 @@ using OpenTK.Mathematics;
 namespace Primitives.Voxels;
 public class Block : Volume{
 
+    /*
+        order of quads :
+
+        south   0 = front
+        north   1 = back
+        east    2 = right
+        west    3 = left
+        up      4
+        down    5
+    */
+
     /// <summary>
-    /// Is this face of the Block covered by some other opaque Block?
+    /// Is this face of the Block full, meaning does it cover the face of the block next to it fully?
     /// </summary>
-    bool
+    public bool
         top = false,
         bot = false,
         north = false,
@@ -14,75 +25,61 @@ public class Block : Volume{
         east = false,
         west = false;
 
-    protected Vector3[] defaultVertices = new Vector3[] { // looking at north, back bot left is 000 front top right is 111
-        // bot
-        new Vector3(0f,0f,0f), // back left
-        new Vector3(1f,0f,0f), // back right
-        new Vector3(0f,0f,1f), // front left
-        new Vector3(1f,0f,1f), // front right
-        // top
-        new Vector3(0f,1f,0f), // back left
-        new Vector3(1f,1f,0f), // back right
-        new Vector3(0f,1f,1f), // front left
-        new Vector3(1f,1f,1f)  // front right
-    };
-    Vector3[]? updatedVertices;
-
-    protected int[] defaultIndexes = new int[] {
-        0, 2, 6, // left face
-        0, 6, 4,
-        0, 4, 5, // back face
-        0, 5, 1,
-        5, 7, 3, // right face
-        1, 5, 3,
-        2, 3, 6, // front face
-        3, 7, 6,
-        4, 6, 5, // top face
-        5, 6, 7,
-        0, 1, 3, // bottom face
-        0, 3, 2
-    };
-    int[]? updatedIndexes;
-
-    protected Vector3[] defaultColors = new Vector3[] {
-        new Vector3(1f, 0f, 0f),
-        new Vector3(0f, 0f, 1f),
-        new Vector3(0f, 1f, 0f),
-        new Vector3(1f, 0f, 0f),
-        new Vector3(0f, 0f, 1f),
-        new Vector3(0f, 1f, 0f),
-        new Vector3(1f, 0f, 0f),
-        new Vector3(0f, 0f, 1f)
-    };
-    Vector3[]? updatedColors;
 
     public Block(){
-        VertCount = 8;
-        IndexCount = 36;
-        ColorDataCount = 8;
+        quads = new Quad[6];
         setDefaults();
     }
 
     public Block(Vector3 pos){
-        VertCount = 8;
-        IndexCount = 36;
-        ColorDataCount = 8;
+        quads = new Quad[6];
         Position = pos;
         setDefaults();
     }
 
     public Block(int x, int y, int z){
-        VertCount = 8;
-        IndexCount = 36;
-        ColorDataCount = 8;
+        quads = new Quad[6];
         Position = new Vector3(x,y,z);
         setDefaults();
     }
 
-    void setDefaults(){
-        updatedVertices = defaultVertices;
-        updatedIndexes = defaultIndexes;
-        updatedColors = defaultColors;
+    public virtual void setDefaults(){
+        // south front
+        quads![0] = new Quad(new Vector3(0f, 0f, 1f), // down left
+                             new Vector3(1f, 0f, 1f), // down right
+                             new Vector3(0f, 1f, 1f), // up left
+                             new Vector3(1f, 1f, 1f)  // up right
+        );
+        // north back
+        quads![1] = new Quad(new Vector3(0f, 0f, 0f), // down left
+                             new Vector3(1f, 0f, 0f), // down right
+                             new Vector3(0f, 1f, 0f), // up left
+                             new Vector3(1f, 1f, 0f)  // up right
+        );
+        // east right
+        quads![2] = new Quad(new Vector3(1f, 0f, 1f), // front down
+                             new Vector3(1f, 0f, 0f), // back down
+                             new Vector3(1f, 1f, 1f), // front up
+                             new Vector3(1f, 1f, 0f)  // back up
+        );
+        // west left
+        quads![3] = new Quad(new Vector3(0f, 0f, 1f), // front down
+                             new Vector3(0f, 0f, 0f), // back down
+                             new Vector3(0f, 1f, 1f), // front up
+                             new Vector3(0f, 1f, 0f)  // back up
+        );
+        // up
+        quads![4] = new Quad(new Vector3(0f, 1f, 0f), // back left
+                             new Vector3(1f, 1f, 0f), // back right
+                             new Vector3(0f, 1f, 1f), // front left
+                             new Vector3(1f, 1f, 1f)  // front right
+        );
+        // down
+        quads![5] = new Quad(new Vector3(0f, 0f, 0f), // back left
+                             new Vector3(1f, 0f, 0f), // back right
+                             new Vector3(0f, 0f, 1f), // front left
+                             new Vector3(1f, 0f, 1f)  // front right
+        );
     }
 
     public override void CalculateModelMatrix()
@@ -94,7 +91,11 @@ public class Block : Volume{
 
     public override Vector3[] GetColorData()
     {
-        return updatedColors!;
+        Vector3[] cd;
+        for (int i = 0; i < 6; i++)
+        {
+            cd.Append(quads![i].GetVertexColors());
+        }
     }
 
     public override int[] GetIndices(int offset = 0)

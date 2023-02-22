@@ -8,9 +8,10 @@ public abstract class Volume
         public Vector3 Rotation = Vector3.Zero;
         public Vector3 Scale = Vector3.One;
  
-        public int VertCount;
-        public int IndexCount;
-        public int ColorDataCount;
+        // public int VertCount;
+        // public int IndexCount;
+        // public int ColorDataCount;
+        public Quad[]? quads;
         public Matrix4 ModelMatrix = Matrix4.Identity;
  
         public abstract Vector3[] GetVerts();

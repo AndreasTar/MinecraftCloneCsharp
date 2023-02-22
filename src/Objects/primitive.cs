@@ -2,36 +2,24 @@ using OpenTK.Mathematics;
 
 namespace Primitives
 {
-struct VertexColor {
-    Vector3 Position;
-    Vector4 Color;
-    
-    VertexColor(Vector3 pos, Vector4 col){
-        this.Position = pos;
-        this.Color = col;
+
+public struct Quad{
+    Vector3[] vertices;
+    int[] indeces = new int[]{0, 2, 1, 1, 2, 3};
+
+    public Quad(Vector3 bl, Vector3 br, Vector3 fl, Vector3 fr){
+        vertices = new Vector3[]{
+            bl,br,fl,fr
+        };
     }
-}
 
-struct VertexTexture {
-    Vector3 Position;
-    Vector2 TextureCoord;
-
-    VertexTexture(Vector3 pos, Vector2 tc){
-        this.Position = pos;
-        this.TextureCoord = tc;
+    public Vector3[] GetVertices(){
+        return vertices;
     }
-}
 
-struct VertexColorTexture
-{
-    Vector3 Position;
-    Vector4 Color;
-    Vector2 TextureCoord;
-
-    VertexColorTexture(Vector3 pos, Vector4 col, Vector2 tc){
-        this.Position = pos;
-        this.Color = col;
-        this.TextureCoord = tc;
+    public int[] GetIndeces(){
+        return indeces;
     }
+
 }
 }
